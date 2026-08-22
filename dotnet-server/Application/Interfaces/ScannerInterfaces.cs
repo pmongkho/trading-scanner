@@ -15,6 +15,9 @@ public interface ITickerStateManager
 {
     IReadOnlyCollection<TickerState> Snapshot();
     bool TryGet(string symbol, out TickerState? state);
+    void Apply(MarketTrade trade);
+    void Apply(MarketQuote quote);
+    void Apply(MinuteBar bar);
 }
 
 public interface IIndicatorEngine { void Update(TickerState state, MinuteBar bar); }

@@ -51,6 +51,15 @@ transitions: premarket is 04:00–09:30, opening range is 09:30–09:45, regular
 and after-hours is 16:00–20:00 on weekdays. Exchange holidays are intentionally deferred to a
 market-calendar provider phase.
 
+## Market stream
+
+The server runs one provider-owned stream and projects normalized trades, quotes, and minute
+bars into a thread-safe per-symbol state manager. `Scanner:MarketStream:Provider` selects
+`Synthetic` (the deterministic local default) or `Alpaca`. Configure the symbol list under
+`Scanner:MarketStream:Symbols`. Alpaca owns a single stock websocket for all configured symbols
+and reads credentials only from `ALPACA_API_KEY` and `ALPACA_API_SECRET`; the configured URL
+selects the Alpaca data feed. The market stream is data-only and provides no order routing.
+
 ## First-time install of the template
 
 Run from the `dotnet-pgsql-angular-stack` folder:
