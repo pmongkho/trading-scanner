@@ -21,10 +21,16 @@ public interface ITickerStateManager
 }
 
 public interface IIndicatorEngine { void Update(TickerState state, MinuteBar bar); }
+public interface IRelativeVolumeService
+{
+    decimal Calculate(string symbol, long currentVolume, IReadOnlyList<MinuteBar> bars);
+}
 public interface IAPlusScoringEngine { ScoreResult Score(TickerState state); }
 public interface IMomentumEngine { MomentumState Evaluate(TickerState state); }
 public interface ISetupDetectionEngine { SetupState Evaluate(TickerState state, DateTimeOffset now); }
 public interface IMarketSessionService { MarketSession GetSession(DateTimeOffset instant); }
+public interface IFilteredViewService { IReadOnlyList<TickerState> Filter(IEnumerable<TickerState> states); }
+public interface IMarketHeatService { decimal Calculate(IReadOnlyCollection<TickerState> states); }
 
 /// <summary>
 /// Methods the server can invoke on a connected SignalR workstation. Method names are

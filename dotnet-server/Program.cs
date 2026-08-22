@@ -38,7 +38,14 @@ builder.Services.AddOptions<ScannerSettings>()
         "Market stream provider must be Synthetic or Alpaca.")
     .ValidateOnStart();
 builder.Services.AddSingleton<IMarketSessionService, MarketSessionService>();
+builder.Services.AddSingleton<IRelativeVolumeService, RollingRelativeVolumeService>();
+builder.Services.AddSingleton<IIndicatorEngine, IndicatorEngine>();
+builder.Services.AddSingleton<IMomentumEngine, MomentumEngine>();
+builder.Services.AddSingleton<IAPlusScoringEngine, APlusScoringEngine>();
+builder.Services.AddSingleton<IFilteredViewService, FilteredViewService>();
+builder.Services.AddSingleton<IMarketHeatService, MarketHeatService>();
 builder.Services.AddSingleton<ITickerStateManager, TickerStateManager>();
+builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IMarketDataProvider>(services =>
 {
     var scanner = services.GetRequiredService<Microsoft.Extensions.Options.IOptions<ScannerSettings>>().Value;
@@ -47,6 +54,7 @@ builder.Services.AddSingleton<IMarketDataProvider>(services =>
         : ActivatorUtilities.CreateInstance<SyntheticMarketDataProvider>(services);
 });
 builder.Services.AddHostedService<MarketStreamService>();
+builder.Services.AddHostedService<ScannerSnapshotPublisher>();
 
 builder.Services.AddSwaggerGen(options =>
 {
