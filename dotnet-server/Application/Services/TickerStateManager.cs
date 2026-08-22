@@ -5,7 +5,10 @@ using TradingScanner.Domain.Models;
 namespace TradingScanner.Application.Services;
 
 /// <summary>Thread-safe, in-memory projection of normalized market events by symbol.</summary>
-public sealed class TickerStateManager : ITickerStateManager
+public sealed class TickerStateManager(
+    IIndicatorEngine indicators,
+    IMomentumEngine momentum,
+    IAPlusScoringEngine scoring) : ITickerStateManager
 {
     private readonly ConcurrentDictionary<string, Entry> _states = new(StringComparer.OrdinalIgnoreCase);
 
@@ -57,6 +60,9 @@ public sealed class TickerStateManager : ITickerStateManager
             state.VolumeAcceleration = state.PreviousOneMinuteVolume == 0 ? 0
                 : (decimal)bar.Volume / state.PreviousOneMinuteVolume;
             state.ChangePercent = PercentChange(bar.Close, state.PreviousClose);
+            indicators.Update(state, bar);
+            state.MomentumState = momentum.Evaluate(state);
+            state.APlusScore = scoring.Score(state);
             state.LastUpdated = Max(state.LastUpdated, bar.Timestamp);
         }
     }
