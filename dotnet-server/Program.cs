@@ -11,6 +11,7 @@ using TradingScanner.Application.Configuration;
 using TradingScanner.Application.Interfaces;
 using TradingScanner.Application.Services;
 using TradingScanner.Hubs;
+using TradingScanner.Infrastructure.MarketData;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,8 +31,22 @@ builder.Services.AddOptions<ScannerSettings>()
     .Validate(x => x.Momentum.BuildingScore <= x.Momentum.AcceleratingScore
         && x.Momentum.AcceleratingScore <= x.Momentum.StrongScore,
         "Momentum thresholds must be in ascending order.")
+    .Validate(x => x.MarketStream.Symbols.Length > 0 && x.MarketStream.SyntheticIntervalMilliseconds > 0,
+        "Market stream symbols and interval are invalid.")
+    .Validate(x => x.MarketStream.Provider.Equals("Synthetic", StringComparison.OrdinalIgnoreCase)
+        || x.MarketStream.Provider.Equals("Alpaca", StringComparison.OrdinalIgnoreCase),
+        "Market stream provider must be Synthetic or Alpaca.")
     .ValidateOnStart();
 builder.Services.AddSingleton<IMarketSessionService, MarketSessionService>();
+builder.Services.AddSingleton<ITickerStateManager, TickerStateManager>();
+builder.Services.AddSingleton<IMarketDataProvider>(services =>
+{
+    var scanner = services.GetRequiredService<Microsoft.Extensions.Options.IOptions<ScannerSettings>>().Value;
+    return scanner.MarketStream.Provider.Equals("Alpaca", StringComparison.OrdinalIgnoreCase)
+        ? ActivatorUtilities.CreateInstance<AlpacaMarketDataProvider>(services)
+        : ActivatorUtilities.CreateInstance<SyntheticMarketDataProvider>(services);
+});
+builder.Services.AddHostedService<MarketStreamService>();
 
 builder.Services.AddSwaggerGen(options =>
 {

@@ -14,9 +14,18 @@ public sealed class ScannerSettings
     public int FrontendUpdateMilliseconds { get; set; } = 250;
     public int AlertCooldownSeconds { get; set; } = 300;
     public string MarketDataFeed { get; set; } = "iex";
+    public MarketStreamSettings MarketStream { get; set; } = new();
     public ScoreWeights ScoreWeights { get; set; } = new();
     public MomentumThresholds Momentum { get; set; } = new();
     public SetupThresholds Setups { get; set; } = new();
+}
+
+public sealed class MarketStreamSettings
+{
+    public string Provider { get; set; } = "Synthetic";
+    public string AlpacaUrl { get; set; } = "wss://stream.data.alpaca.markets/v2/iex";
+    public string[] Symbols { get; set; } = ["AAPL", "MSFT"];
+    public int SyntheticIntervalMilliseconds { get; set; } = 250;
 }
 
 public sealed class ScoreWeights

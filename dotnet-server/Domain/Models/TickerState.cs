@@ -39,6 +39,8 @@ public sealed class TickerState
     public MomentumState MomentumState { get; set; } = MomentumState.Dormant;
     public ScoreResult APlusScore { get; set; } = ScoreResult.Empty;
     public DateTimeOffset LastUpdated { get; set; }
+
+    public TickerState Clone() => (TickerState)MemberwiseClone();
 }
 
 public sealed record ScoreComponents(decimal Catalyst, decimal RelativeVolume, decimal GapMomentum,
