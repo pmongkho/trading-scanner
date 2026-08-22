@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.SignalR;
+using TradingScanner.Application.Interfaces;
 
 namespace TradingScanner.Hubs;
 
-public sealed class MarketHub(ILogger<MarketHub> logger) : Hub
+public sealed class MarketHub(ILogger<MarketHub> logger) : Hub<IMarketClient>
 {
     public override async Task OnConnectedAsync()
     {

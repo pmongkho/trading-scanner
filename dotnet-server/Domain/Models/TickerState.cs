@@ -53,3 +53,27 @@ public sealed record ScoreResult(decimal TotalScore, ScoreGrade Grade, ScoreComp
 public sealed record MarketTrade(string Symbol, decimal Price, long Size, DateTimeOffset Timestamp);
 public sealed record MarketQuote(string Symbol, decimal Bid, decimal Ask, DateTimeOffset Timestamp);
 public sealed record MinuteBar(string Symbol, decimal Open, decimal High, decimal Low, decimal Close, long Volume, DateTimeOffset Timestamp);
+
+/// <summary>
+/// The versioned envelope published to scanner clients. Keeping transport metadata in
+/// the domain contract lets clients reject stale snapshots without relying on arrival order.
+/// </summary>
+public sealed record ScannerSnapshot(
+    long Sequence,
+    DateTimeOffset GeneratedAt,
+    MarketSession Session,
+    decimal MarketHeat,
+    IReadOnlyList<TickerState> Tickers);
+
+/// <summary>A transient scanner alert. Persistence concerns remain in AlertHistory.</summary>
+public sealed record ScannerAlert(
+    Guid Id,
+    DateTimeOffset Timestamp,
+    string Symbol,
+    decimal Price,
+    decimal Score,
+    ScoreGrade Grade,
+    AlertType Type,
+    SetupState Setup,
+    MomentumState Momentum,
+    string Message);

@@ -38,6 +38,19 @@ TradingScanner/
 └── vercel.json
 ```
 
+## Scanner foundation
+
+The first scanner phase defines a provider-neutral market-data contract, mutable per-symbol
+state, typed scoring/setup/catalyst values, and a typed SignalR client contract. Runtime
+thresholds live under the `Scanner` configuration section and are validated during startup;
+score weights must total 100. PostgreSQL stores ticker metadata, news, signals, alerts,
+configuration, and measured signal outcomes in the `scanner` schema.
+
+`MarketSessionService` classifies timestamps in `America/New_York`, including daylight-saving
+transitions: premarket is 04:00–09:30, opening range is 09:30–09:45, regular is 09:45–16:00,
+and after-hours is 16:00–20:00 on weekdays. Exchange holidays are intentionally deferred to a
+market-calendar provider phase.
+
 ## First-time install of the template
 
 Run from the `dotnet-pgsql-angular-stack` folder:
