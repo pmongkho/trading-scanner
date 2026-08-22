@@ -7,11 +7,21 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using TradingScanner.Application.Configuration;
+using TradingScanner.Application.Interfaces;
+using TradingScanner.Application.Services;
+using TradingScanner.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddOptions<ScannerSettings>()
+    .Bind(builder.Configuration.GetSection(ScannerSettings.SectionName))
+    .Validate(x => x.MinimumPrice > 0 && x.MaximumPrice > x.MinimumPrice, "Scanner price range is invalid.")
+    .ValidateOnStart();
+builder.Services.AddSingleton<IMarketSessionService, MarketSessionService>();
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -101,7 +111,8 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins(origins)
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -128,5 +139,6 @@ app.UseAuthorization();
 
 app.MapHealthChecks("/health");
 app.MapControllers();
+app.MapHub<MarketHub>("/hubs/market");
 
 app.Run();
