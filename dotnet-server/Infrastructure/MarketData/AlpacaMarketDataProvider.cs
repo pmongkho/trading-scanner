@@ -14,6 +14,7 @@ public sealed class AlpacaMarketDataProvider(
     ILogger<AlpacaMarketDataProvider> logger) : IMarketDataProvider
 {
     private readonly MarketStreamSettings _settings = settings.Value.MarketStream;
+    private readonly AlpacaSettings _alpaca = settings.Value.Alpaca;
 
     public event Func<MarketTrade, ValueTask>? TradeReceived;
     public event Func<MarketQuote, ValueTask>? QuoteReceived;
@@ -21,14 +22,17 @@ public sealed class AlpacaMarketDataProvider(
 
     public async Task RunAsync(CancellationToken cancellationToken)
     {
-        var key = Environment.GetEnvironmentVariable("ALPACA_API_KEY");
-        var secret = Environment.GetEnvironmentVariable("ALPACA_API_SECRET");
+        var key = Environment.GetEnvironmentVariable("ALPACA_API_KEY") ?? _alpaca.ApiKey;
+        var secret = Environment.GetEnvironmentVariable("ALPACA_API_SECRET") ?? _alpaca.ApiSecret;
+        var feed = Environment.GetEnvironmentVariable("ALPACA_DATA_FEED") ?? _alpaca.DataFeed;
         if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(secret))
-            throw new InvalidOperationException("Alpaca requires ALPACA_API_KEY and ALPACA_API_SECRET.");
+            throw new InvalidOperationException("Alpaca API key and secret are not configured.");
+        if (string.IsNullOrWhiteSpace(feed))
+            throw new InvalidOperationException("An Alpaca data feed (for example, iex or sip) is not configured.");
         if (_settings.Symbols.Length == 0) throw new InvalidOperationException("At least one market-stream symbol is required.");
 
         using var socket = new ClientWebSocket();
-        await socket.ConnectAsync(new Uri(_settings.AlpacaUrl), cancellationToken);
+        await socket.ConnectAsync(BuildStreamUri(_settings.AlpacaUrl, feed), cancellationToken);
         await SendAsync(socket, new { action = "auth", key, secret }, cancellationToken);
         await SendAsync(socket, new
         {
@@ -37,7 +41,8 @@ public sealed class AlpacaMarketDataProvider(
             quotes = _settings.Symbols,
             bars = _settings.Symbols
         }, cancellationToken);
-        logger.LogInformation("Connected to Alpaca market data for {SymbolCount} symbols", _settings.Symbols.Length);
+        logger.LogInformation("Connected to Alpaca {DataFeed} market data for {SymbolCount} symbols",
+            feed, _settings.Symbols.Length);
 
         var buffer = new byte[64 * 1024];
         using var message = new MemoryStream();
@@ -84,5 +89,21 @@ public sealed class AlpacaMarketDataProvider(
     {
         var payload = JsonSerializer.SerializeToUtf8Bytes(value);
         return socket.SendAsync(payload, WebSocketMessageType.Text, true, cancellationToken);
+    }
+
+    internal static Uri BuildStreamUri(string configuredUrl, string feed)
+    {
+        var normalizedFeed = feed.Trim().ToLowerInvariant();
+        if (normalizedFeed.Length == 0 || normalizedFeed.Any(character => !char.IsAsciiLetterOrDigit(character) && character != '_'))
+            throw new InvalidOperationException("ALPACA_DATA_FEED contains invalid characters.");
+
+        var configured = new Uri(configuredUrl, UriKind.Absolute);
+        if (configured.Scheme is not "wss" and not "ws")
+            throw new InvalidOperationException("The Alpaca market stream URL must use ws or wss.");
+
+        var builder = new UriBuilder(configured);
+        var versionRoot = builder.Path[..(builder.Path.LastIndexOf('/') + 1)];
+        builder.Path = $"{versionRoot}{normalizedFeed}";
+        return builder.Uri;
     }
 }
