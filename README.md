@@ -57,8 +57,11 @@ The server runs one provider-owned stream and projects normalized trades, quotes
 bars into a thread-safe per-symbol state manager. `Scanner:MarketStream:Provider` selects
 `Synthetic` (the deterministic local default) or `Alpaca`. Configure the symbol list under
 `Scanner:MarketStream:Symbols`. Alpaca owns a single stock websocket for all configured symbols
-and reads credentials only from `ALPACA_API_KEY` and `ALPACA_API_SECRET`; the configured URL
-selects the Alpaca data feed. The market stream is data-only and provides no order routing.
+and reads credentials from `Scanner:Alpaca` in `appsettings.json`. The `ALPACA_API_KEY`,
+`ALPACA_API_SECRET`, and `ALPACA_DATA_FEED` environment variables override those values when set.
+The market stream is data-only and provides no order routing. To enable live data, fill in the
+Alpaca settings and set `Scanner__MarketStream__Provider=Alpaca` before starting the server. The
+default provider remains `Synthetic`, so Alpaca credentials are not required for local development.
 
 ## Live dashboard and catalysts
 
@@ -67,10 +70,16 @@ then follows versioned snapshots over SignalR at `/hubs/market`. It retains hydr
 during reconnects, identifies stale streams as degraded, and reconnects with bounded
 exponential backoff.
 
-Alpaca news polling uses `ALPACA_API_KEY` and `ALPACA_API_SECRET`. Ordered,
+Alpaca news polling uses the same configured Alpaca credentials. Ordered,
 case-insensitive rules assign a stable catalyst type and quality score; provider IDs make
 ingestion idempotent. Configure polling under `Scanner:News` or set
 `Scanner__News__Enabled=false` to disable it.
+
+The values `wss://stream.data.alpaca.markets/v2/iex` and
+`https://data.alpaca.markets/v1beta1/news` are service endpoints, not credentials. Credentials
+are sent only in Alpaca's websocket authentication message or HTTP authentication headers. Do
+not commit real credentials; use environment variables or a deployment secret store outside local
+development.
 
 ## First-time install of the template
 

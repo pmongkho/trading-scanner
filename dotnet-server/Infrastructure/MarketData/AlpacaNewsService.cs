@@ -21,8 +21,9 @@ public sealed class AlpacaNewsService(
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var settings = options.Value.News;
-        var key = Environment.GetEnvironmentVariable("ALPACA_API_KEY");
-        var secret = Environment.GetEnvironmentVariable("ALPACA_API_SECRET");
+        var alpaca = options.Value.Alpaca;
+        var key = Environment.GetEnvironmentVariable("ALPACA_API_KEY") ?? alpaca.ApiKey;
+        var secret = Environment.GetEnvironmentVariable("ALPACA_API_SECRET") ?? alpaca.ApiSecret;
         if (!settings.Enabled || string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(secret))
         {
             logger.LogInformation("Alpaca news ingestion disabled or credentials unavailable");

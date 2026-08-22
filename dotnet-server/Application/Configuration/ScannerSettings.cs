@@ -14,12 +14,20 @@ public sealed class ScannerSettings
     public int FrontendUpdateMilliseconds { get; set; } = 250;
     public int AlertCooldownSeconds { get; set; } = 300;
     public string MarketDataFeed { get; set; } = "iex";
+    public AlpacaSettings Alpaca { get; set; } = new();
     public MarketStreamSettings MarketStream { get; set; } = new();
     public NewsSettings News { get; set; } = new();
     public ScoreWeights ScoreWeights { get; set; } = new();
     public MomentumThresholds Momentum { get; set; } = new();
     public SetupThresholds Setups { get; set; } = new();
     public OutcomeSettings Outcomes { get; set; } = new();
+}
+
+public sealed class AlpacaSettings
+{
+    public string ApiKey { get; set; } = string.Empty;
+    public string ApiSecret { get; set; } = string.Empty;
+    public string DataFeed { get; set; } = "iex";
 }
 
 public sealed class OutcomeSettings
