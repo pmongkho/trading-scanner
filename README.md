@@ -60,6 +60,18 @@ bars into a thread-safe per-symbol state manager. `Scanner:MarketStream:Provider
 and reads credentials only from `ALPACA_API_KEY` and `ALPACA_API_SECRET`; the configured URL
 selects the Alpaca data feed. The market stream is data-only and provides no order routing.
 
+## Live dashboard and catalysts
+
+The dashboard hydrates its scanner snapshot and recent news from `GET /api/scanner/dashboard`,
+then follows versioned snapshots over SignalR at `/hubs/market`. It retains hydrated data
+during reconnects, identifies stale streams as degraded, and reconnects with bounded
+exponential backoff.
+
+Alpaca news polling uses `ALPACA_API_KEY` and `ALPACA_API_SECRET`. Ordered,
+case-insensitive rules assign a stable catalyst type and quality score; provider IDs make
+ingestion idempotent. Configure polling under `Scanner:News` or set
+`Scanner__News__Enabled=false` to disable it.
+
 ## First-time install of the template
 
 Run from the `dotnet-pgsql-angular-stack` folder:
