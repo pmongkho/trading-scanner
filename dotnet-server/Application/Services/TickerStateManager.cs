@@ -1,4 +1,6 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using TradingScanner.Application.Interfaces;
 using TradingScanner.Domain.Models;
 
@@ -13,6 +15,9 @@ public sealed class TickerStateManager(
     IMarketSessionService sessions) : ITickerStateManager
 {
     private readonly ConcurrentDictionary<string, Entry> _states = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Meter Meter = new("TradingScanner.HotPaths");
+    private static readonly Histogram<double> BarDuration = Meter.CreateHistogram<double>("scanner.ticker.bar.duration", "ms");
+    private static readonly Counter<long> BarUpdates = Meter.CreateCounter<long>("scanner.ticker.bar.updates");
 
     public void Apply(MarketTrade trade)
     {
@@ -47,6 +52,7 @@ public sealed class TickerStateManager(
     public void Apply(MinuteBar bar)
     {
         if (!IsValidSymbol(bar.Symbol) || bar.Open <= 0 || bar.High <= 0 || bar.Low <= 0 || bar.Close <= 0 || bar.Volume < 0) return;
+        var started = Stopwatch.GetTimestamp();
         var entry = GetEntry(bar.Symbol);
         lock (entry.Gate)
         {
@@ -73,6 +79,8 @@ public sealed class TickerStateManager(
             state.LastUpdated = Max(state.LastUpdated, bar.Timestamp);
             entry.LastBarClose = bar.Close;
         }
+        BarUpdates.Add(1);
+        BarDuration.Record(Stopwatch.GetElapsedTime(started).TotalMilliseconds);
     }
 
     public void ApplyCatalyst(string symbol, CatalystClassification catalyst, string headline)

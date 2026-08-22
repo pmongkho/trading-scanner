@@ -66,6 +66,20 @@ public sealed record NewsItem(long Id, string Headline, string? Source, string[]
 
 public sealed record DashboardHydration(ScannerSnapshot Snapshot, IReadOnlyList<NewsItem> News);
 
+public sealed record SignalOutcome(long SignalId, string Symbol, DateTimeOffset Timestamp, decimal EntryPrice,
+    decimal Score, ScoreGrade Grade, SetupState Setup, decimal? Return1Minute, decimal? Return5Minutes,
+    decimal? Return15Minutes, decimal? Return30Minutes, decimal? MaximumFavorableExcursion,
+    decimal? MaximumAdverseExcursion);
+
+public sealed record OutcomeBucket(string Name, int Signals, decimal? AverageReturn, decimal? WinRate,
+    decimal? AverageFavorableExcursion, decimal? AverageAdverseExcursion);
+
+public sealed record HistoricalAnalytics(DateTimeOffset From, DateTimeOffset To, int Signals,
+    int MeasuredSignals, IReadOnlyList<OutcomeBucket> ByGrade, IReadOnlyList<OutcomeBucket> BySetup);
+
+public sealed record ModelTuningRecommendation(int SampleSize, decimal? SuggestedMinimumScore,
+    decimal? SuggestedMinimumRelativeVolume, string Basis);
+
 /// <summary>
 /// The versioned envelope published to scanner clients. Keeping transport metadata in
 /// the domain contract lets clients reject stale snapshots without relying on arrival order.
