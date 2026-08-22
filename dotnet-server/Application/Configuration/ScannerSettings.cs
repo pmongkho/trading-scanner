@@ -19,6 +19,14 @@ public sealed class ScannerSettings
     public ScoreWeights ScoreWeights { get; set; } = new();
     public MomentumThresholds Momentum { get; set; } = new();
     public SetupThresholds Setups { get; set; } = new();
+    public OutcomeSettings Outcomes { get; set; } = new();
+}
+
+public sealed class OutcomeSettings
+{
+    public int PollSeconds { get; set; } = 10;
+    public int BatchSize { get; set; } = 250;
+    public int AnalyticsMaximumDays { get; set; } = 90;
 }
 
 public sealed class NewsSettings

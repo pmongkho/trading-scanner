@@ -38,6 +38,8 @@ builder.Services.AddOptions<ScannerSettings>()
         "Market stream provider must be Synthetic or Alpaca.")
     .Validate(x => x.News.PollSeconds > 0 && x.News.LookbackMinutes > 0,
         "News polling values must be positive.")
+    .Validate(x => x.Outcomes.PollSeconds > 0 && x.Outcomes.BatchSize > 0 && x.Outcomes.AnalyticsMaximumDays > 0,
+        "Outcome measurement values must be positive.")
     .ValidateOnStart();
 builder.Services.AddSingleton<IMarketSessionService, MarketSessionService>();
 builder.Services.AddSingleton<IRelativeVolumeService, RollingRelativeVolumeService>();
@@ -65,6 +67,7 @@ builder.Services.AddSingleton<IMarketDataProvider>(services =>
 builder.Services.AddHostedService<MarketStreamService>();
 builder.Services.AddHostedService<ScannerSnapshotPublisher>();
 builder.Services.AddHostedService<ScannerAlertService>();
+builder.Services.AddHostedService<SignalOutcomeService>();
 builder.Services.AddHttpClient();
 builder.Services.AddHostedService<AlpacaNewsService>();
 
