@@ -164,6 +164,11 @@ namespace TradingScanner.Migrations
                     b.Property<int>("AlertType")
                         .HasColumnType("integer");
 
+                    b.Property<string>("DeduplicationKey")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
+
                     b.Property<int>("Grade")
                         .HasColumnType("integer");
 
@@ -191,6 +196,9 @@ namespace TradingScanner.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeduplicationKey")
+                        .IsUnique();
 
                     b.HasIndex("Symbol", "Timestamp");
 

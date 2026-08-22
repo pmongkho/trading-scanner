@@ -50,6 +50,8 @@ public class AppDbContext
         {
             entity.ToTable("alert_history");
             entity.HasIndex(x => new { x.Symbol, x.Timestamp });
+            entity.HasIndex(x => x.DeduplicationKey).IsUnique();
+            entity.Property(x => x.DeduplicationKey).HasMaxLength(160);
         });
         builder.Entity<HistoricalPerformance>().ToTable("historical_performance");
         builder.Entity<ScannerConfiguration>(entity =>

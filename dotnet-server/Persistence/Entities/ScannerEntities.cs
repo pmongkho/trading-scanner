@@ -55,6 +55,7 @@ public sealed class AlertHistory
     public Guid Id { get; set; }
     public DateTimeOffset Timestamp { get; set; }
     public required string Symbol { get; set; }
+    public required string DeduplicationKey { get; set; }
     public decimal Price { get; set; }
     public decimal Score { get; set; }
     public ScoreGrade Grade { get; set; }

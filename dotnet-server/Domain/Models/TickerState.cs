@@ -17,10 +17,14 @@ public sealed class TickerState
     public decimal RelativeVolume { get; set; }
     public long? FloatShares { get; set; }
     public decimal Vwap { get; set; }
+    public decimal PreviousPrice { get; set; }
+    public decimal PreviousVwap { get; set; }
     public decimal PremarketHigh { get; set; }
     public decimal PremarketLow { get; set; }
     public decimal HighOfDay { get; set; }
     public decimal LowOfDay { get; set; }
+    public decimal PreviousHighOfDay { get; set; }
+    public decimal OpeningRangeHigh { get; set; }
     public decimal Bid { get; set; }
     public decimal Ask { get; set; }
     public decimal Spread { get; set; }
