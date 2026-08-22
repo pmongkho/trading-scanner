@@ -59,13 +59,9 @@ bars into a thread-safe per-symbol state manager. `Scanner:MarketStream:Provider
 `Scanner:MarketStream:Symbols`. Alpaca owns a single stock websocket for all configured symbols
 and reads credentials from `Scanner:Alpaca` in `appsettings.json`. The `ALPACA_API_KEY`,
 `ALPACA_API_SECRET`, and `ALPACA_DATA_FEED` environment variables override those values when set.
-The market stream is data-only and provides no order routing. The checked-in configuration selects
-`Alpaca`; fill in the Alpaca settings before starting the server. Set
-`Scanner__MarketStream__Provider=Synthetic` when credentials are intentionally unavailable.
-
-`Scanner:ShowUnqualifiedTickers` defaults to `true`, so subscribed symbols appear as soon as their
-first trade arrives even when they do not meet the scanner's price, gap, volume, and relative-volume
-thresholds. Set it to `false` when the dashboard should contain qualifying scanner results only.
+The market stream is data-only and provides no order routing. To enable live data, fill in the
+Alpaca settings and set `Scanner__MarketStream__Provider=Alpaca` before starting the server. The
+default provider remains `Synthetic`, so Alpaca credentials are not required for local development.
 
 ## Live dashboard and catalysts
 
