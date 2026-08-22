@@ -34,6 +34,10 @@ public interface IRelativeVolumeService
 public interface IAPlusScoringEngine { ScoreResult Score(TickerState state); }
 public interface IMomentumEngine { MomentumState Evaluate(TickerState state); }
 public interface ISetupDetectionEngine { SetupState Evaluate(TickerState state, DateTimeOffset now); }
+public interface ISetupDetector
+{
+    SetupState Detect(TickerState state, DateTimeOffset now);
+}
 public interface IMarketSessionService { MarketSession GetSession(DateTimeOffset instant); }
 public interface IFilteredViewService { IReadOnlyList<TickerState> Filter(IEnumerable<TickerState> states); }
 public interface IMarketHeatService { decimal Calculate(IReadOnlyCollection<TickerState> states); }

@@ -43,6 +43,12 @@ builder.Services.AddSingleton<IMarketSessionService, MarketSessionService>();
 builder.Services.AddSingleton<IRelativeVolumeService, RollingRelativeVolumeService>();
 builder.Services.AddSingleton<IIndicatorEngine, IndicatorEngine>();
 builder.Services.AddSingleton<IMomentumEngine, MomentumEngine>();
+builder.Services.AddSingleton<ISetupDetector, OrbSetupDetector>();
+builder.Services.AddSingleton<ISetupDetector, VwapSetupDetector>();
+builder.Services.AddSingleton<ISetupDetector, PullbackSetupDetector>();
+builder.Services.AddSingleton<ISetupDetector, PremarketHighSetupDetector>();
+builder.Services.AddSingleton<ISetupDetector, HighOfDaySetupDetector>();
+builder.Services.AddSingleton<ISetupDetectionEngine, SetupDetectionEngine>();
 builder.Services.AddSingleton<IAPlusScoringEngine, APlusScoringEngine>();
 builder.Services.AddSingleton<IFilteredViewService, FilteredViewService>();
 builder.Services.AddSingleton<IMarketHeatService, MarketHeatService>();
@@ -58,6 +64,7 @@ builder.Services.AddSingleton<IMarketDataProvider>(services =>
 });
 builder.Services.AddHostedService<MarketStreamService>();
 builder.Services.AddHostedService<ScannerSnapshotPublisher>();
+builder.Services.AddHostedService<ScannerAlertService>();
 builder.Services.AddHttpClient();
 builder.Services.AddHostedService<AlpacaNewsService>();
 

@@ -8,7 +8,9 @@ namespace TradingScanner.Application.Services;
 public sealed class TickerStateManager(
     IIndicatorEngine indicators,
     IMomentumEngine momentum,
-    IAPlusScoringEngine scoring) : ITickerStateManager
+    IAPlusScoringEngine scoring,
+    ISetupDetectionEngine setups,
+    IMarketSessionService sessions) : ITickerStateManager
 {
     private readonly ConcurrentDictionary<string, Entry> _states = new(StringComparer.OrdinalIgnoreCase);
 
@@ -49,6 +51,8 @@ public sealed class TickerStateManager(
         lock (entry.Gate)
         {
             var state = entry.State;
+            state.PreviousPrice = entry.LastBarClose;
+            state.PreviousHighOfDay = state.HighOfDay;
             if (state.Open == 0) state.Open = bar.Open;
             state.Price = bar.Close;
             state.High = state.High == 0 ? bar.High : Math.Max(state.High, bar.High);
@@ -60,10 +64,14 @@ public sealed class TickerStateManager(
             state.VolumeAcceleration = state.PreviousOneMinuteVolume == 0 ? 0
                 : (decimal)bar.Volume / state.PreviousOneMinuteVolume;
             state.ChangePercent = PercentChange(bar.Close, state.PreviousClose);
+            state.PreviousVwap = state.Vwap;
             indicators.Update(state, bar);
+            UpdateSessionLevels(state, bar, sessions.GetSession(bar.Timestamp));
             state.MomentumState = momentum.Evaluate(state);
+            state.CurrentSetup = setups.Evaluate(state, bar.Timestamp);
             state.APlusScore = scoring.Score(state);
             state.LastUpdated = Max(state.LastUpdated, bar.Timestamp);
+            entry.LastBarClose = bar.Close;
         }
     }
 
@@ -96,8 +104,23 @@ public sealed class TickerStateManager(
         static value => new Entry(new TickerState { Symbol = value }));
     private static bool IsValidSymbol(string? symbol) => !string.IsNullOrWhiteSpace(symbol);
     private static decimal PercentChange(decimal price, decimal basis) => basis == 0 ? 0 : (price - basis) / basis * 100;
+    private static void UpdateSessionLevels(TickerState state, MinuteBar bar, Domain.Enums.MarketSession session)
+    {
+        if (session == Domain.Enums.MarketSession.Premarket)
+        {
+            state.PremarketHigh = Math.Max(state.PremarketHigh, bar.High);
+            state.PremarketLow = state.PremarketLow == 0 ? bar.Low : Math.Min(state.PremarketLow, bar.Low);
+            state.PremarketVolume += bar.Volume;
+        }
+        if (session == Domain.Enums.MarketSession.OpeningRange)
+            state.OpeningRangeHigh = Math.Max(state.OpeningRangeHigh, bar.High);
+    }
     private static DateTimeOffset Max(DateTimeOffset left, DateTimeOffset right) => left > right ? left : right;
     private static TickerState Copy(Entry entry) { lock (entry.Gate) return entry.State.Clone(); }
 
-    private sealed record Entry(TickerState State) { public object Gate { get; } = new(); }
+    private sealed record Entry(TickerState State)
+    {
+        public object Gate { get; } = new();
+        public decimal LastBarClose { get; set; }
+    }
 }
