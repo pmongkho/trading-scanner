@@ -1,23 +1,43 @@
-<main class="min-h-screen bg-zinc-950 text-white grid place-items-center p-6">
-  <section class="w-full max-w-3xl">
-    <p class="text-sm uppercase tracking-[0.25em] text-zinc-400">
-      ASP.NET + PostgreSQL + Angular
-    </p>
+<main class="workstation">
+  <header class="statusbar">
+    <div class="brand"><span class="brand-mark">M</span><div><strong>MOMENTUM<span>OS</span></strong><small>SMALL-CAP INTELLIGENCE</small></div></div>
+    <div class="market-stat"><small>MARKET STATUS</small><strong><i class="pulse"></i> PREMARKET</strong></div>
+    <div class="heat"><small>SMALL-CAP HEAT</small><strong>8.4 <span>/ 10</span></strong><em>HOT</em></div>
+    <div class="session"><small>SESSION</small><strong>07:42:18 ET</strong></div>
+    <div class="connection"><i></i><div><small>SIGNALR</small><strong>FOUNDATION READY</strong></div></div>
+    <div class="updated"><small>LAST DATA</small><strong>Awaiting stream</strong></div>
+  </header>
 
-    <h1 class="mt-3 text-4xl font-bold">TradingScanner</h1>
+  <nav class="tabs">
+    @for (tab of tabs; track tab; let first = $first) { <button [class.active]="first">{{ tab }}</button> }
+  </nav>
 
-    <p class="mt-4 text-zinc-300">
-      Skeleton is running. Add project-specific features without rebuilding the
-      stack.
-    </p>
+  <section class="primary-grid">
+    <article class="panel scanner">
+      <div class="panel-title"><div><span class="eyebrow">LIVE UNIVERSE</span><h2>A+ Scanner</h2></div><span class="count">{{ rows.length }} ACTIVE</span></div>
+      <div class="table-wrap"><table><thead><tr><th>Symbol</th><th>Score</th><th>Price</th><th>% Chg</th><th>Gap</th><th>RVOL</th><th>Float</th><th>Volume</th><th>Momentum</th><th>Setup</th></tr></thead>
+      <tbody>@for (row of rows; track row.symbol) { <tr (click)="selected = row" [class.selected]="selected.symbol === row.symbol"><td><strong>{{ row.symbol }}</strong></td><td><b class="score" [class.elite]="row.score >= 90">{{ row.score }}</b></td><td>${{ row.price }}</td><td class="positive">+{{ row.change }}%</td><td class="positive">+{{ row.gap }}%</td><td><strong>{{ row.rvol }}x</strong></td><td>{{ row.float }}</td><td>{{ row.volume }}</td><td><span class="momentum">{{ row.momentum }}</span></td><td><span class="setup">{{ row.setup }}</span></td></tr> }</tbody></table></div>
+    </article>
 
-    <div class="mt-8 flex gap-3">
-      <a
-        routerLink="/login"
-        class="rounded-lg bg-white px-4 py-2 font-semibold text-black"
-      >
-        Login
-      </a>
-    </div>
+    <article class="panel selected-stock">
+      <div class="stock-head"><div><span class="eyebrow">SELECTED LEADER</span><h1>{{ selected.symbol }} <small>NASDAQ</small></h1></div><div class="big-score"><span>A+</span>{{ selected.score }}</div></div>
+      <div class="price"><strong>${{ selected.price }}</strong><span>+{{ selected.change }}%</span></div>
+      <div class="badges"><span>● {{ selected.momentum }}</span><span>{{ selected.setup }}</span></div>
+      <div class="chart"><div class="chart-grid"></div><svg viewBox="0 0 600 160" preserveAspectRatio="none"><path d="M0 139 C42 135 58 119 94 124 S150 85 186 103 S242 76 278 84 S330 31 369 59 S424 42 452 50 S522 7 600 17"/><path class="fill" d="M0 139 C42 135 58 119 94 124 S150 85 186 103 S242 76 278 84 S330 31 369 59 S424 42 452 50 S522 7 600 17 L600 160 L0 160Z"/></svg><span class="chart-label">INTRADAY STRUCTURE</span><span class="chart-price">$7.82</span></div>
+      <div class="metrics"><div><small>VWAP</small><strong>$6.94</strong></div><div><small>HOD</small><strong>$7.89</strong></div><div><small>RVOL</small><strong>{{ selected.rvol }}x</strong></div><div><small>SPREAD</small><strong>0.38%</strong></div></div>
+    </article>
+
+    <aside class="side-stack">
+      <article class="panel breakdown"><div class="panel-title"><div><span class="eyebrow">AUTHORITATIVE MODEL</span><h2>A+ Breakdown</h2></div><b>{{ selected.score }}/100</b></div>
+        @for (item of scores; track item[0]) { <div class="score-row"><div><span>{{ item[0] }}</span><strong>{{ item[1] }} / {{ item[2] }}</strong></div><progress [max]="item[2]" [value]="item[1]"></progress></div> }
+      </article>
+      <article class="panel news"><div class="panel-title"><div><span class="eyebrow">CATALYST INTELLIGENCE</span><h2>News</h2></div><span class="quality">5 / 5</span></div><span class="news-type">FDA · EXCEPTIONAL</span><h3>KLYN announces positive pivotal trial results, plans accelerated regulatory submission</h3><p>07:18 ET · Business Wire</p></article>
+    </aside>
   </section>
+
+  <section class="feed-grid">
+    <article class="panel feed"><div class="panel-title"><h2>Momentum Feed</h2><span>VELOCITY</span></div><p><time>07:41:56</time><b>KLYN</b><span>Volume acceleration <strong>3.8x</strong></span><em>STRONG</em></p><p><time>07:40:12</time><b>VTRX</b><span>Crossed above VWAP with confirmation</span><em>RECLAIM</em></p></article>
+    <article class="panel feed alerts"><div class="panel-title"><h2>High-Quality Alerts</h2><span>2 NEW</span></div><p><time>07:41:48</time><b>KLYN</b><span>A+ candidate near premarket high</span><em>A+ 94</em></p><p><time>07:38:03</time><b>ARQO</b><span>Opening range compression detected</span><em>ORB</em></p></article>
+  </section>
+  <footer>ANALYTICAL DECISION SUPPORT ONLY · NO ORDER EXECUTION <span>Market data provider not connected in Phase 1</span></footer>
 </main>
