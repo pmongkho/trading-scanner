@@ -13,6 +13,7 @@ public sealed class ScannerSettings
     public long MinimumPremarketVolume { get; set; } = 1_000_000;
     public int FrontendUpdateMilliseconds { get; set; } = 250;
     public int AlertCooldownSeconds { get; set; } = 300;
+    public bool ShowUnqualifiedTickers { get; set; } = true;
     public string MarketDataFeed { get; set; } = "iex";
     public AlpacaSettings Alpaca { get; set; } = new();
     public MarketStreamSettings MarketStream { get; set; } = new();

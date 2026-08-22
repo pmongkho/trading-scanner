@@ -55,7 +55,7 @@ market-calendar provider phase.
 
 The server runs one provider-owned stream and projects normalized trades, quotes, and minute
 bars into a thread-safe per-symbol state manager. `Scanner:MarketStream:Provider` selects
-`Synthetic` (the deterministic local default) or `Alpaca`. Configure the symbol list under
+`Synthetic` (the deterministic local provider) or `Alpaca` (the checked-in default). Configure the symbol list under
 `Scanner:MarketStream:Symbols`. Alpaca owns a single stock websocket for all configured symbols
 and reads credentials from `Scanner:Alpaca` in `appsettings.json`. The `ALPACA_API_KEY`,
 `ALPACA_API_SECRET`, and `ALPACA_DATA_FEED` environment variables override those values when set.
