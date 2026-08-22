@@ -18,6 +18,12 @@ public interface ITickerStateManager
     void Apply(MarketTrade trade);
     void Apply(MarketQuote quote);
     void Apply(MinuteBar bar);
+    void ApplyCatalyst(string symbol, CatalystClassification catalyst, string headline);
+}
+
+public interface ICatalystClassifier
+{
+    CatalystClassification Classify(string headline, string? summary = null);
 }
 
 public interface IIndicatorEngine { void Update(TickerState state, MinuteBar bar); }

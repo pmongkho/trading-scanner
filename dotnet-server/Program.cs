@@ -36,6 +36,8 @@ builder.Services.AddOptions<ScannerSettings>()
     .Validate(x => x.MarketStream.Provider.Equals("Synthetic", StringComparison.OrdinalIgnoreCase)
         || x.MarketStream.Provider.Equals("Alpaca", StringComparison.OrdinalIgnoreCase),
         "Market stream provider must be Synthetic or Alpaca.")
+    .Validate(x => x.News.PollSeconds > 0 && x.News.LookbackMinutes > 0,
+        "News polling values must be positive.")
     .ValidateOnStart();
 builder.Services.AddSingleton<IMarketSessionService, MarketSessionService>();
 builder.Services.AddSingleton<IRelativeVolumeService, RollingRelativeVolumeService>();
@@ -44,6 +46,7 @@ builder.Services.AddSingleton<IMomentumEngine, MomentumEngine>();
 builder.Services.AddSingleton<IAPlusScoringEngine, APlusScoringEngine>();
 builder.Services.AddSingleton<IFilteredViewService, FilteredViewService>();
 builder.Services.AddSingleton<IMarketHeatService, MarketHeatService>();
+builder.Services.AddSingleton<ICatalystClassifier, CatalystClassifier>();
 builder.Services.AddSingleton<ITickerStateManager, TickerStateManager>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IMarketDataProvider>(services =>
@@ -55,6 +58,8 @@ builder.Services.AddSingleton<IMarketDataProvider>(services =>
 });
 builder.Services.AddHostedService<MarketStreamService>();
 builder.Services.AddHostedService<ScannerSnapshotPublisher>();
+builder.Services.AddHttpClient();
+builder.Services.AddHostedService<AlpacaNewsService>();
 
 builder.Services.AddSwaggerGen(options =>
 {

@@ -15,9 +15,18 @@ public sealed class ScannerSettings
     public int AlertCooldownSeconds { get; set; } = 300;
     public string MarketDataFeed { get; set; } = "iex";
     public MarketStreamSettings MarketStream { get; set; } = new();
+    public NewsSettings News { get; set; } = new();
     public ScoreWeights ScoreWeights { get; set; } = new();
     public MomentumThresholds Momentum { get; set; } = new();
     public SetupThresholds Setups { get; set; } = new();
+}
+
+public sealed class NewsSettings
+{
+    public bool Enabled { get; set; } = true;
+    public string AlpacaUrl { get; set; } = "https://data.alpaca.markets/v1beta1/news";
+    public int PollSeconds { get; set; } = 30;
+    public int LookbackMinutes { get; set; } = 30;
 }
 
 public sealed class MarketStreamSettings

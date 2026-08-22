@@ -1,27 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
+import { ScannerStore, TickerState } from '../../core/scanner.store';
 
-interface ScannerRow {
-  symbol: string; score: number; price: number; change: number; gap: number;
-  rvol: number; float: string; volume: string; momentum: string; setup: string;
-}
-
-@Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.css',
-})
-export class HomeComponent {
+@Component({ selector: 'app-home', imports: [CurrencyPipe, DatePipe, DecimalPipe], templateUrl: './home.component.html', styleUrl: './home.component.css' })
+export class HomeComponent implements OnInit, OnDestroy {
+  readonly store = inject(ScannerStore);
   readonly tabs = ['A+ Now', 'Top Gappers', 'HOD Momentum', 'Volume Surge', 'VWAP Reclaim', 'Premarket High Break', '15-Min ORB', 'First Pullback', 'Halts'];
-  readonly rows: ScannerRow[] = [
-    { symbol: 'KLYN', score: 94, price: 7.82, change: 68.4, gap: 41.2, rvol: 12.8, float: '4.2M', volume: '18.4M', momentum: 'Strong', setup: 'PM High Break' },
-    { symbol: 'VTRX', score: 88, price: 4.16, change: 37.1, gap: 22.8, rvol: 8.4, float: '7.9M', volume: '9.7M', momentum: 'Accelerating', setup: 'VWAP Reclaim' },
-    { symbol: 'ARQO', score: 81, price: 12.43, change: 24.7, gap: 18.5, rvol: 5.9, float: '11.3M', volume: '6.2M', momentum: 'Building', setup: '15-Min ORB' },
-    { symbol: 'NMBL', score: 76, price: 2.91, change: 19.8, gap: 14.2, rvol: 3.6, float: '16.8M', volume: '3.1M', momentum: 'Building', setup: 'Waiting' },
-  ];
-  selected = this.rows[0];
-  readonly scores = [
-    ['Catalyst', 20, 20], ['Relative volume', 15, 15], ['Gap momentum', 10, 10],
-    ['Float', 10, 10], ['Premarket volume', 8, 10], ['Volume acceleration', 10, 10],
-    ['VWAP structure', 9, 10], ['Setup quality', 4, 5], ['Resistance room', 4, 5], ['Liquidity', 4, 5],
-  ] as const;
+  readonly selectedSymbol = signal<string | null>(null);
+  readonly selected = computed(() => this.store.tickers().find(x => x.symbol === this.selectedSymbol()) ?? this.store.tickers()[0] ?? null);
+  readonly selectedNews = computed(() => this.store.news().find(x => this.selected()?.symbol && x.symbols.includes(this.selected()!.symbol)) ?? this.store.news()[0]);
+  readonly scoreKeys: [keyof TickerState['aPlusScore']['components'], string, number][] = [['catalyst','Catalyst',20],['relativeVolume','Relative volume',15],['gapMomentum','Gap momentum',10],['float','Float',10],['premarketVolume','Premarket volume',10],['volumeAcceleration','Volume acceleration',10],['vwap','VWAP structure',10],['setup','Setup quality',5],['resistanceRoom','Resistance room',5],['liquidity','Liquidity',5]];
+  ngOnInit() { void this.store.start(); }
+  ngOnDestroy() { this.store.stop(); }
+  choose(row: TickerState) { this.selectedSymbol.set(row.symbol); }
+  compact(value: number | null) { return value == null ? '—' : Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(value); }
+  momentum(value: number) { return ['Dormant','Building','Accelerating','Strong','Extended','Fading'][value] ?? 'Unknown'; }
+  setup(value: number) { return ['Waiting','First Pullback','VWAP Hold','VWAP Reclaim','15-Min ORB','PM High Break','HOD Break','Extended','Failed'][value] ?? 'Unknown'; }
+  catalyst(value: number) { return ['FDA','Clinical Trial','Acquisition','Buyout','Major Contract','Earnings','Partnership','Government Contract','Patent','Analyst Action','Corporate Update','Offering','Dilution','Reverse Split','Unknown','None'][value] ?? 'Unknown'; }
+  session(value?: number) { return ['CLOSED','PREMARKET','OPENING RANGE','REGULAR','AFTER HOURS'][value ?? 0]; }
 }

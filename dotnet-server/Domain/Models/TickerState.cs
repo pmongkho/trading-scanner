@@ -55,6 +55,12 @@ public sealed record ScoreResult(decimal TotalScore, ScoreGrade Grade, ScoreComp
 public sealed record MarketTrade(string Symbol, decimal Price, long Size, DateTimeOffset Timestamp);
 public sealed record MarketQuote(string Symbol, decimal Bid, decimal Ask, DateTimeOffset Timestamp);
 public sealed record MinuteBar(string Symbol, decimal Open, decimal High, decimal Low, decimal Close, long Volume, DateTimeOffset Timestamp);
+public sealed record CatalystClassification(CatalystType Type, int Quality);
+
+public sealed record NewsItem(long Id, string Headline, string? Source, string[] Symbols,
+    CatalystType CatalystType, int CatalystQuality, DateTimeOffset PublishedAt);
+
+public sealed record DashboardHydration(ScannerSnapshot Snapshot, IReadOnlyList<NewsItem> News);
 
 /// <summary>
 /// The versioned envelope published to scanner clients. Keeping transport metadata in

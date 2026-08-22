@@ -67,6 +67,22 @@ public sealed class TickerStateManager(
         }
     }
 
+    public void ApplyCatalyst(string symbol, CatalystClassification catalyst, string headline)
+    {
+        if (!IsValidSymbol(symbol) || catalyst.Type == Domain.Enums.CatalystType.None) return;
+        var entry = GetEntry(symbol);
+        lock (entry.Gate)
+        {
+            // Do not let a lower-quality, later generic headline replace stronger intelligence.
+            if (entry.State.HasCatalyst && entry.State.CatalystQuality > catalyst.Quality) return;
+            entry.State.HasCatalyst = true;
+            entry.State.CatalystType = catalyst.Type;
+            entry.State.CatalystQuality = catalyst.Quality;
+            entry.State.CatalystHeadline = headline;
+            entry.State.APlusScore = scoring.Score(entry.State);
+        }
+    }
+
     public IReadOnlyCollection<TickerState> Snapshot() => _states.Values.Select(Copy).ToArray();
 
     public bool TryGet(string symbol, out TickerState? state)
