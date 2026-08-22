@@ -21,17 +21,27 @@ public sealed class ScannerSettings
 
 public sealed class ScoreWeights
 {
-    public int Catalyst { get; set; } = 20; public int RelativeVolume { get; set; } = 15;
-    public int GapMomentum { get; set; } = 10; public int Float { get; set; } = 10;
-    public int PremarketVolume { get; set; } = 10; public int VolumeAcceleration { get; set; } = 10;
-    public int Vwap { get; set; } = 10; public int Setup { get; set; } = 5;
-    public int ResistanceRoom { get; set; } = 5; public int Liquidity { get; set; } = 5;
+    public int Catalyst { get; set; } = 20;
+    public int RelativeVolume { get; set; } = 15;
+    public int GapMomentum { get; set; } = 10;
+    public int Float { get; set; } = 10;
+    public int PremarketVolume { get; set; } = 10;
+    public int VolumeAcceleration { get; set; } = 10;
+    public int Vwap { get; set; } = 10;
+    public int Setup { get; set; } = 5;
+    public int ResistanceRoom { get; set; } = 5;
+    public int Liquidity { get; set; } = 5;
+
+    public int Total => Catalyst + RelativeVolume + GapMomentum + Float + PremarketVolume
+        + VolumeAcceleration + Vwap + Setup + ResistanceRoom + Liquidity;
 }
 
 public sealed class MomentumThresholds
 {
-    public decimal BuildingScore { get; set; } = 3; public decimal AcceleratingScore { get; set; } = 5;
-    public decimal StrongScore { get; set; } = 7; public decimal ExtendedFromVwapPercent { get; set; } = 12;
+    public decimal BuildingScore { get; set; } = 3;
+    public decimal AcceleratingScore { get; set; } = 5;
+    public decimal StrongScore { get; set; } = 7;
+    public decimal ExtendedFromVwapPercent { get; set; } = 12;
 }
 
 public sealed class SetupThresholds

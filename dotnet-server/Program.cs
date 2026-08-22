@@ -20,6 +20,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOptions<ScannerSettings>()
     .Bind(builder.Configuration.GetSection(ScannerSettings.SectionName))
     .Validate(x => x.MinimumPrice > 0 && x.MaximumPrice > x.MinimumPrice, "Scanner price range is invalid.")
+    .Validate(x => x.MinimumGapPercent >= 0 && x.MinimumVolume >= 0 && x.MinimumRelativeVolume >= 0,
+        "Scanner thresholds cannot be negative.")
+    .Validate(x => x.MaximumFloat > 0 && x.PreferredFloat > 0 && x.PreferredFloat <= x.MaximumFloat,
+        "Scanner float limits are invalid.")
+    .Validate(x => x.FrontendUpdateMilliseconds > 0 && x.AlertCooldownSeconds >= 0,
+        "Scanner timing values are invalid.")
+    .Validate(x => x.ScoreWeights.Total == 100, "Scanner score weights must total 100.")
+    .Validate(x => x.Momentum.BuildingScore <= x.Momentum.AcceleratingScore
+        && x.Momentum.AcceleratingScore <= x.Momentum.StrongScore,
+        "Momentum thresholds must be in ascending order.")
     .ValidateOnStart();
 builder.Services.AddSingleton<IMarketSessionService, MarketSessionService>();
 
