@@ -3,7 +3,7 @@
     <div class="brand"><span class="brand-mark">M</span><div><strong>MOMENTUM<span>OS</span></strong><small>SMALL-CAP INTELLIGENCE</small></div></div>
     <div class="market-stat"><small>MARKET STATUS</small><strong><i class="pulse"></i> {{ session(store.snapshot()?.session) }}</strong></div>
     <div class="heat"><small>SMALL-CAP HEAT</small><strong>{{ store.snapshot()?.marketHeat?.toFixed(1) ?? '—' }} <span>/ 10</span></strong><em>LIVE</em></div>
-    <div class="connection" [class.degraded]="store.connection() !== 'live'"><i></i><div><small>SIGNALR</small><strong>{{ store.connection().toUpperCase() }}</strong></div></div>
+    <div class="connection" [class.degraded]="store.connection() !== 'live'"><i></i><div><small>{{ store.isDemo() ? 'DATA MODE' : 'SIGNALR' }}</small><strong>{{ store.isDemo() ? 'DEMO DATA' : store.connection().toUpperCase() }}</strong></div></div>
     <div class="updated"><small>LAST DATA</small><strong>{{ store.lastDataAt() ? (store.lastDataAt() | date:'HH:mm:ss') : 'Awaiting stream' }}</strong></div>
   </header>
   <nav class="tabs">@for (tab of tabs; track tab; let first = $first) { <button [class.active]="first">{{ tab }}</button> }</nav>
@@ -16,7 +16,9 @@
     <article class="panel selected-stock">@if (selected(); as stock) {
       <div class="stock-head"><div><span class="eyebrow">SELECTED LEADER</span><h1>{{ stock.symbol }} <small>LIVE</small></h1></div><div class="big-score"><span>{{ stock.aPlusScore.grade === 3 ? 'A+' : 'SCORE' }}</span>{{ stock.aPlusScore.totalScore | number:'1.0-0' }}</div></div>
       <div class="price"><strong>{{ stock.price | currency }}</strong><span>{{ stock.changePercent | number:'1.1-1' }}%</span></div><div class="badges"><span>● {{ momentum(stock.momentumState) }}</span><span>{{ setup(stock.currentSetup) }}</span></div>
-      <div class="chart"><div class="chart-grid"></div><span class="chart-label">LIVE MARKET STRUCTURE</span><span class="chart-price">{{ stock.price | currency }}</span></div>
+      <div class="chart"><div class="chart-grid"></div><span class="chart-label">SCORE COMPONENTS</span><span class="chart-price">{{ stock.aPlusScore.totalScore | number:'1.0-0' }}/100</span><div class="bar-chart">
+        @for (bar of chartBars(); track bar.label) { <div class="bar-column" [title]="bar.label + ': ' + bar.value"><span class="bar-value">{{ bar.value | number:'1.0-0' }}</span><i [style.height.%]="bar.height"></i><small>{{ bar.label.split(' ')[0] }}</small></div> }
+      </div></div>
       <div class="metrics"><div><small>VWAP</small><strong>{{ stock.vwap | currency }}</strong></div><div><small>HOD</small><strong>{{ stock.highOfDay | currency }}</strong></div><div><small>RVOL</small><strong>{{ stock.relativeVolume | number:'1.1-1' }}x</strong></div><div><small>SPREAD</small><strong>{{ stock.spreadPercent | number:'1.2-2' }}%</strong></div></div>
       } @else { <div class="empty detail-empty">Waiting for the first qualifying ticker…</div> }</article>
     <aside class="side-stack">
