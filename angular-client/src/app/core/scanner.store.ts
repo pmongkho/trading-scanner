@@ -26,6 +26,7 @@ export class ScannerStore {
   readonly snapshot = signal<ScannerSnapshot | null>(null);
   readonly news = signal<NewsItem[]>([]);
   readonly lastDataAt = signal<Date | null>(null);
+  readonly isDemo = signal(false);
   readonly tickers = computed(() => this.snapshot()?.tickers ?? []);
 
   async start(): Promise<void> {
@@ -36,7 +37,12 @@ export class ScannerStore {
       const hydration = await firstValueFrom(this.http.get<Hydration>(`${environment.apiBaseUrl}/scanner/dashboard`));
       this.acceptSnapshot(hydration.snapshot);
       this.news.set(hydration.news);
-    } catch { this.connection.set('degraded'); }
+    } catch {
+      this.acceptSnapshot(demoSnapshot());
+      this.news.set(demoNews());
+      this.isDemo.set(true);
+      this.connection.set('degraded');
+    }
     this.connect();
     this.staleTimer = setInterval(() => {
       const age = Date.now() - (this.lastDataAt()?.getTime() ?? 0);
@@ -82,6 +88,7 @@ export class ScannerStore {
     if ((this.snapshot()?.sequence ?? -1) > snapshot.sequence && snapshot.sequence !== 0) return;
     this.snapshot.set(snapshot);
     this.lastDataAt.set(new Date(snapshot.generatedAt));
+    if (snapshot.sequence !== -1) this.isDemo.set(false);
   }
 
   private scheduleReconnect(): void {
@@ -90,4 +97,29 @@ export class ScannerStore {
     const delay = Math.min(30_000, 1_000 * 2 ** Math.min(this.attempt++, 5));
     this.reconnectTimer = setTimeout(() => this.connect(), delay);
   }
+}
+
+function demoSnapshot(): ScannerSnapshot {
+  const now = new Date().toISOString();
+  const ticker = (symbol: string, price: number, change: number, score: number, offset: number): TickerState => ({
+    symbol, price, changePercent: change, gapPercent: change - 1.4, relativeVolume: 3.2 + offset,
+    floatShares: 7_800_000 + offset * 1_100_000, volume: 1_840_000 + offset * 420_000,
+    momentumState: offset > 1 ? 3 : 2, currentSetup: offset % 2 ? 3 : 1,
+    vwap: price * .94, highOfDay: price * 1.035, spreadPercent: .18 + offset * .03,
+    catalystType: offset % 2 ? 5 : 6, catalystQuality: 4,
+    aPlusScore: { totalScore: score, grade: score >= 85 ? 3 : 2, components: {
+      catalyst: 16 + offset, relativeVolume: 11 + offset, gapMomentum: 8, float: 7,
+      premarketVolume: 7 + offset, volumeAcceleration: 8, vwap: 10, setup: 5,
+      resistanceRoom: 4, liquidity: 5
+    }}, lastUpdated: now
+  });
+  return { sequence: -1, generatedAt: now, session: 3, marketHeat: 7.8, tickers: [
+    ticker('VYNE', 8.42, 34.7, 92, 2), ticker('KAVL', 5.18, 26.3, 87, 1), ticker('PRZO', 3.76, 18.9, 81, 0)
+  ]};
+}
+
+function demoNews(): NewsItem[] {
+  return [{ id: -1, headline: 'Preview data: connect the market API to display live catalyst intelligence.',
+    source: 'MomentumOS demo', symbols: ['VYNE', 'KAVL', 'PRZO'], catalystType: 6,
+    catalystQuality: 4, publishedAt: new Date().toISOString() }];
 }
