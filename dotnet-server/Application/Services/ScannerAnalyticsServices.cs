@@ -57,6 +57,11 @@ public sealed class FilteredViewService(IOptions<ScannerSettings> options) : IFi
     public IReadOnlyList<TickerState> Filter(IEnumerable<TickerState> states)
     {
         var s = options.Value;
+        if (s.ShowUnqualifiedTickers)
+            return states.Where(x => x.Price > 0)
+                .OrderByDescending(x => x.APlusScore.TotalScore)
+                .ThenByDescending(x => x.ChangePercent).ToArray();
+
         return states.Where(x => x.Price >= s.MinimumPrice && x.Price <= s.MaximumPrice
                 && x.GapPercent >= s.MinimumGapPercent && x.Volume >= s.MinimumVolume
                 && x.RelativeVolume >= s.MinimumRelativeVolume
