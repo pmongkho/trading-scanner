@@ -1,13 +1,13 @@
 # New Project Checklist
 
-- [ ] `dotnet new pstack -n ProjectName`
-- [ ] Create PostgreSQL database
-- [ ] Set `ConnectionStrings:DefaultConnection`
-- [ ] Generate a new JWT key
-- [ ] Create `InitialCreate` migration
-- [ ] Run backend
-- [ ] Run Angular frontend
-- [ ] Create Render PostgreSQL database
+- [x] `dotnet new pstack -n ProjectName`
+- [x] Create PostgreSQL database
+- [x] Set `ConnectionStrings:DefaultConnection`
+- [x] Generate a new JWT key
+- [x] Create `InitialCreate` migration
+- [x] Run backend
+- [x] Run Angular frontend
+- [x] Create Render PostgreSQL database
 - [ ] Create Render web service
 - [ ] Add production connection string
 - [ ] Add production JWT key

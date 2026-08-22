@@ -4,7 +4,7 @@ Reusable ASP.NET Core + PostgreSQL + Angular stack.
 
 ## Stack
 
-- ASP.NET Core .NET 8
+- ASP.NET Core .NET 10
 - Entity Framework Core
 - PostgreSQL / Npgsql
 - ASP.NET Core Identity
