@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://YOUR-RENDER-SERVICE.onrender.com/api',
+  apiBaseUrl: window.__TRADING_SCANNER_CONFIG__?.apiBaseUrl ?? 'http://localhost:5152/api',
 };
