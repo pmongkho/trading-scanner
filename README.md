@@ -81,6 +81,11 @@ are sent only in Alpaca's websocket authentication message or HTTP authenticatio
 not commit real credentials; use environment variables or a deployment secret store outside local
 development.
 
+At startup, the Alpaca provider first requests the latest snapshots for the configured symbols.
+This seeds the dashboard when the websocket has no new trades to deliver because the market is
+closed. A failed snapshot request is logged as a warning and does not prevent the live websocket
+from connecting. Override `Scanner:Alpaca:SnapshotsUrl` only when using an API-compatible proxy.
+
 ## First-time install of the template
 
 Run from the `dotnet-pgsql-angular-stack` folder:
@@ -173,13 +178,16 @@ The application automatically applies EF migrations during startup.
 
 Import the repository. The root `vercel.json` already builds `angular-client`.
 
-Before production deployment, change:
+Set this environment variable in the Vercel project before deploying:
 
 ```text
-angular-client/src/environments/environment.production.ts
+API_BASE_URL=https://YOUR-RENDER-SERVICE.onrender.com
 ```
 
-to the Render API URL.
+The Angular
+prebuild writes this value to `runtime-config.js`, normalizes the required `/api` suffix, and
+fails a Vercel build rather than silently shipping the old placeholder URL when it is missing.
+The Render `Cors__AllowedOrigins__0` value must match the Vercel site origin.
 
 ## What belongs in the skeleton
 

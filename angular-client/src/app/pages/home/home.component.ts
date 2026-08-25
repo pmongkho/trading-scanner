@@ -15,6 +15,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!stock) return [];
     return this.scoreKeys.map(([key, label, max]) => ({ label, value: stock.aPlusScore.components[key], height: Math.max(4, stock.aPlusScore.components[key] / max * 100) }));
   });
+  readonly emptyMessage = computed(() => {
+    if (this.store.connection() === 'connecting') return 'Hydrating dashboard…';
+    if (this.store.snapshot()?.session === 0)
+      return 'Market closed · showing the latest available snapshot when Alpaca has data.';
+    if (this.store.connection() !== 'live')
+      return 'Market data is unavailable · reconnecting to Alpaca…';
+    return 'No symbols currently match scanner filters.';
+  });
   ngOnInit() { void this.store.start(); }
   ngOnDestroy() { this.store.stop(); }
   choose(row: TickerState) { this.selectedSymbol.set(row.symbol); }

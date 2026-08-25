@@ -9,6 +9,7 @@
 **/node_modules/
 **/dist/
 **/.angular/
+angular-client/public/runtime-config.js
 .angular/
 .vscode/
 

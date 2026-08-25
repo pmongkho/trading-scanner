@@ -29,6 +29,7 @@ public sealed class AlpacaSettings
     public string ApiKey { get; set; } = string.Empty;
     public string ApiSecret { get; set; } = string.Empty;
     public string DataFeed { get; set; } = "iex";
+    public string SnapshotsUrl { get; set; } = "https://data.alpaca.markets/v2/stocks/snapshots";
 }
 
 public sealed class OutcomeSettings
